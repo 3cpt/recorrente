@@ -28,7 +28,7 @@ jobs:
       - name: Run a multi-line script
         run: |
           pip install PyGithub
-          python main.py ${{ secrets.GITHUB_TOKEN }} 3cpt
+          python main.py ${{ secrets.RECORRENTE_TOKEN }} 3cpt
           
       - name: Commit files
         run: |
