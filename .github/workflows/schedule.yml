@@ -28,7 +28,7 @@ jobs:
       - name: Pipenv for Github Actions
         uses: VaultVulp/action-pipenv@v2.0.1
         with:
-          command: pipenv install
+          command: install
           
       - name: Run a multi-line script
         run: python main.py ${{ secrets.GITHUB_TOKEN }}
