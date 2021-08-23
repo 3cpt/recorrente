@@ -27,9 +27,9 @@ for repo in github.get_user(user.login).get_repos():
         "size": repo.size,
         "contributors": repo_contributors.totalCount,
         "views": 0,
-        "unique_views":0,
-        "clones":0,
-        "unique_clones":0,
+        "unique_views": 0,
+        "clones": 0,
+        "unique_clones": 0,
         "open_issues": 0,
         "closed_issues": 0,
         "open_pr": 0,
@@ -37,13 +37,11 @@ for repo in github.get_user(user.login).get_repos():
         "closed_pr": 0
     }
 
-
     repo_views = repo.get_views_traffic()
 
     if repo_views['views']:
         repo_data["views"] = repo_views['views'][-1].count
         repo_data["unique_views"] = repo_views['views'][-1].uniques
-
 
     repo_clones = repo.get_clones_traffic()
 
@@ -52,14 +50,14 @@ for repo in github.get_user(user.login).get_repos():
         repo_data["unique_clones"] = repo_clones['clones'][-1].uniques
 
     issues_open = repo.get_issues(state='open')
-    repo_data['open_issues'] = sum(map(lambda x : x.pull_request is None, issues_open))
+    repo_data['open_issues'] = sum(map(lambda x: x.pull_request is None, issues_open))
 
     issues_closed = repo.get_issues(state='closed')
-    repo_data['closed_issues'] = sum(map(lambda x : x.pull_request is None, issues_closed))
+    repo_data['closed_issues'] = sum(map(lambda x: x.pull_request is None, issues_closed))
 
     repo_data['open_pr'] = repo.get_pulls(state='open').totalCount
-    pull_request_closed =repo.get_pulls(state='closed')
-    repo_data['merged_pr'] = sum(map(lambda x : x.merged , pull_request_closed))
+    pull_request_closed = repo.get_pulls(state='closed')
+    repo_data['merged_pr'] = sum(map(lambda x: x.merged, pull_request_closed))
     repo_data['closed_pr'] = repo.get_pulls(state='closed').totalCount - repo_data['merged_pr']
 
     path = 'repo-data.csv'
