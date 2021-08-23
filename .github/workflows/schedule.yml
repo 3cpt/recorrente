@@ -25,13 +25,10 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Pipenv for Github Actions
-        uses: VaultVulp/action-pipenv@v2.0.1
-        with:
-          command: install
-          
       - name: Run a multi-line script
-        run: python main.py ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          pip install PyGithub
+          python main.py ${{ secrets.GITHUB_TOKEN }}
           
       - name: Commit files
         run: |
