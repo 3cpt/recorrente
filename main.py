@@ -7,13 +7,12 @@ from github import Github
 
 parser = argparse.ArgumentParser()
 parser.add_argument("token", help="github token")
+parser.add_argument("user", help="github username")
 args = parser.parse_args()
 
 github = Github(args.token)
 
-user = github.get_user()
-
-for repo in github.get_user(user.login).get_repos():
+for repo in github.get_user(args.user).get_repos():
     repo_pulls = repo.get_pulls(state='all')
     repo_issues = repo.get_issues(state='all')
     repo_contributors = repo.get_contributors(anon='true')

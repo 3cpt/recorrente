@@ -11,7 +11,8 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "args": [
-                "github_token_here"
+                "github_token_here",
+                "3cpt"
             ]
         }
     ]
