@@ -7,6 +7,9 @@ from github import Github
 
 parser = argparse.ArgumentParser()
 parser.add_argument("token", help="github token")
+parser.add_argument('--fork', dest='fork', action='store_true', help='exclude forks')
+parser.add_argument('--path', help='file path', default='repo-data.csv')
+parser.set_defaults(fork=False)
 args = parser.parse_args()
 
 github = Github(args.token)
@@ -14,6 +17,8 @@ github = Github(args.token)
 user = github.get_user()
 
 for repo in github.get_user(user.login).get_repos():
+    if repo.fork and not args.fork:
+        continue
     repo_pulls = repo.get_pulls(state='all')
     repo_issues = repo.get_issues(state='all')
     repo_contributors = repo.get_contributors(anon='true')
@@ -60,7 +65,7 @@ for repo in github.get_user(user.login).get_repos():
     repo_data['merged_pr'] = sum(map(lambda x: x.merged, pull_request_closed))
     repo_data['closed_pr'] = repo.get_pulls(state='closed').totalCount - repo_data['merged_pr']
 
-    path = 'repo-data.csv'
+    path = args.path
     fieldnames = ['date', 'full_name', 'subscribers_count', 'stargazers_count', 'forks_count', 'size', 'contributors', 'views', 'unique_views', 'clones', 'unique_clones', 'open_issues', 'closed_issues', 'open_pr', 'merged_pr', 'closed_pr']
     my_file = Path(path)
 
