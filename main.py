@@ -1,5 +1,5 @@
 import argparse
-import datetime
+from datetime import datetime, timedelta
 import json
 import csv
 from pathlib import Path
@@ -7,13 +7,13 @@ from github import Github
 
 parser = argparse.ArgumentParser()
 parser.add_argument("token", help="github token")
-parser.add_argument('--fork', dest='fork', action='store_true', help='exclude forks')
+parser.add_argument('--fork', dest='fork', action='store_true', help='include forks')
 parser.add_argument('--path', help='file path', default='repo-data.csv')
 parser.set_defaults(fork=False)
 args = parser.parse_args()
 
 github = Github(args.token)
-
+yesterday_date = datetime.now() + timedelta(days=-1)
 user = github.get_user()
 
 for repo in github.get_user(user.login).get_repos():
@@ -24,7 +24,7 @@ for repo in github.get_user(user.login).get_repos():
     repo_contributors = repo.get_contributors(anon='true')
 
     repo_data = {
-        "date": datetime.datetime.now().strftime("%Y-%m-%d"),
+        "date": yesterday_date.strftime("%Y-%m-%d"),
         "full_name": repo.full_name,
         "subscribers_count": repo.subscribers_count,
         "stargazers_count": repo.stargazers_count,
@@ -45,14 +45,31 @@ for repo in github.get_user(user.login).get_repos():
     repo_views = repo.get_views_traffic()
 
     if repo_views['views']:
-        repo_data["views"] = repo_views['views'][-1].count
-        repo_data["unique_views"] = repo_views['views'][-1].uniques
+        last_view_count = repo_views['views'][-1]
+        if last_view_count:
+            if last_view_count.timestamp.strftime("%Y-%m-%d") == yesterday_date.strftime("%Y-%m-%d"):
+                repo_data["views"] = last_view_count.count
+                repo_data["unique_views"] = last_view_count.uniques
+            elif len(repo_views['views']) >= 2:
+                last_view_count = repo_views['views'][-2]
+                if last_view_count.timestamp.strftime("%Y-%m-%d") == yesterday_date.strftime("%Y-%m-%d"):
+                    repo_data["views"] = last_view_count.count
+                    repo_data["unique_views"] = last_view_count.uniques
+
 
     repo_clones = repo.get_clones_traffic()
 
     if repo_clones['clones']:
-        repo_data["clones"] = repo_clones['clones'][-1].count
-        repo_data["unique_clones"] = repo_clones['clones'][-1].uniques
+        last_clone_count = repo_clones['clones'][-1]
+        if last_clone_count:
+            if last_clone_count.timestamp.strftime("%Y-%m-%d") == yesterday_date.strftime("%Y-%m-%d"):
+                repo_data["clones"] = last_clone_count.count
+                repo_data["unique_clones"] = last_clone_count.uniques
+            elif len(repo_clones['clones']) >= 2:
+                last_clone_count = repo_clones['clones'][-2]
+                if last_clone_count.timestamp.strftime("%Y-%m-%d") == yesterday_date.strftime("%Y-%m-%d"):
+                    repo_data["clones"] = last_clone_count.count
+                    repo_data["unique_clones"] = last_clone_count.uniques
 
     issues_open = repo.get_issues(state='open')
     repo_data['open_issues'] = sum(map(lambda x: x.pull_request is None, issues_open))
